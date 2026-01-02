@@ -1,0 +1,43 @@
+services:
+
+  wordpress:
+    image: wordpress
+    restart: always
+    deploy:
+      replicas: 3 # Scales the service to 3 instances
+      resources:
+        limits:
+          cpus: '0.5' # Limits CPU usage to 0.5 cores
+          memory: 512M # Limits memory usage to 512MB
+        reservations:
+          cpus: '0.25' # Reserves 0.25 CPU cores
+          memory: 256M # Reserves 256MB of memory
+      restart_policy:
+        condition: on-failure # Restarts the container if it fails
+    ports:
+      - "8080-8090:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: exampleuser
+      WORDPRESS_DB_PASSWORD: examplepass
+      WORDPRESS_DB_NAME: exampledb
+    volumes:
+      - wordpress:/var/www/html
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: exampledb
+      MYSQL_USER: exampleuser
+      MYSQL_PASSWORD: examplepass
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - db:/var/lib/mysql
+
+volumes:
+  wordpress:
+  db:
+
+## you can scale individual service 
+## docker-compose up --scale wordpress=5
